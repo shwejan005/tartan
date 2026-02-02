@@ -2,17 +2,17 @@
 
 import { useDraggable } from '@dnd-kit/core'
 import { cn } from '@/lib/utils'
-import { Type, Mail, Lock, MousePointerClick, Share2 } from 'lucide-react'
+import { Type, MousePointerClick, Square, LayoutTemplate, Image, FormInput } from 'lucide-react'
 
 const icons = {
-  header: Type,
-  email: Mail,
-  password: Lock,
+  text: Type,
+  input: FormInput,
   button: MousePointerClick,
-  social: Share2,
+  image: Image,
+  box: Square,
 }
 
-function DraggableBlock({ type, label }) {
+function AssetBlock({ type, label, onClick }) {
   const { attributes, listeners, setNodeRef, isDragging } = useDraggable({
     id: `sidebar-${type}`,
     data: { type },
@@ -25,43 +25,49 @@ function DraggableBlock({ type, label }) {
       ref={setNodeRef}
       {...listeners}
       {...attributes}
+      onClick={onClick}
       className={cn(
-        'group flex items-center gap-3 p-3 mb-2 bg-white border border-zinc-200 rounded-lg cursor-grab hover:border-zinc-300 hover:shadow-sm transition-all active:cursor-grabbing',
-        isDragging && 'opacity-50 ring-2 ring-zinc-900 border-transparent shadow-md'
+        'group flex flex-col items-center gap-2 p-3 bg-transparent hover:bg-zinc-100 rounded-md cursor-pointer transition-all active:cursor-grabbing',
+        isDragging && 'opacity-50'
       )}
     >
-      <div className="h-8 w-8 rounded-md bg-zinc-50 flex items-center justify-center border border-zinc-100 group-hover:bg-white group-hover:border-zinc-200 transition-colors">
-         <Icon className="w-4 h-4 text-zinc-500 group-hover:text-zinc-900" />
+      <div className="h-10 w-10 text-zinc-600 group-hover:text-black flex items-center justify-center bg-white border border-zinc-200 shadow-sm rounded-lg group-hover:scale-105 transition-all">
+         <Icon strokeWidth={1.5} className="w-5 h-5" />
       </div>
-      <span className="text-sm font-medium text-zinc-600 group-hover:text-zinc-900">{label}</span>
+      <span className="text-[10px] uppercase font-semibold text-zinc-400 group-hover:text-zinc-600 transition-colors tracking-wide text-center">{label}</span>
     </div>
   )
 }
 
-export function Sidebar() {
+export function Sidebar({ onAddBlock }) {
   return (
-    <div className="w-72 border-r border-zinc-200 bg-zinc-50/50 p-6 shrink-0 flex flex-col gap-8 overflow-y-auto backdrop-blur-xl">
-      <div>
-        <h3 className="text-xs font-semibold text-zinc-400 uppercase tracking-wider mb-4 px-1">
-          Form Elements
-        </h3>
-        <DraggableBlock type="header" label="Header" />
-        <DraggableBlock type="email" label="Email Field" />
-        <DraggableBlock type="password" label="Password Field" />
+    <div className="w-64 border-r border-zinc-200 bg-zinc-50/30 flex flex-col backdrop-blur-xl">
+      <div className="h-12 border-b border-zinc-200 flex items-center px-4">
+         <span className="text-xs font-bold text-zinc-900 uppercase tracking-widest">Assets</span>
       </div>
-      
-      <div>
-        <h3 className="text-xs font-semibold text-zinc-400 uppercase tracking-wider mb-4 px-1">
-          Actions
-        </h3>
-        <DraggableBlock type="button" label="Submit Button" />
-        <DraggableBlock type="social" label="Social Login" />
-      </div>
-      
-      <div className="mt-auto p-4 bg-blue-50 rounded-xl border border-blue-100">
-         <p className="text-xs text-blue-600 leading-relaxed">
-           <strong>Tip:</strong> Drag these blocks onto the canvas to build your auth flow.
-         </p>
+
+      <div className="p-4 overflow-y-auto flex-1 space-y-8">
+        <div>
+          <h3 className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider mb-3 px-1">
+            Build
+          </h3>
+          <div className="grid grid-cols-2 gap-2">
+            <AssetBlock type="text" label="Text" onClick={() => onAddBlock('text')} />
+            <AssetBlock type="input" label="Input" onClick={() => onAddBlock('input')} />
+            <AssetBlock type="button" label="Button" onClick={() => onAddBlock('button')} />
+            <AssetBlock type="box" label="Box" onClick={() => onAddBlock('box')} />
+          </div>
+        </div>
+        
+        <div>
+          <h3 className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider mb-3 px-1">
+            Media
+          </h3>
+           <div className="grid grid-cols-2 gap-2">
+            {/* Social is a specific preset we might keep for convenience, or make generic */}
+            <AssetBlock type="social" label="Social" onClick={() => onAddBlock('social')} />
+          </div>
+        </div>
       </div>
     </div>
   )

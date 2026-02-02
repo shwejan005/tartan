@@ -1,6 +1,8 @@
 'use client'
 
 import { useDroppable } from '@dnd-kit/core'
+import { SortableContext, verticalListSortingStrategy, useSortable } from '@dnd-kit/sortable'
+import { CSS } from '@dnd-kit/utilities'
 import { cn } from '@/lib/utils'
 
 export function Canvas({
@@ -25,14 +27,32 @@ export function Canvas({
       <div
         ref={setNodeRef}
         className={cn(
-          'w-full max-w-[400px] bg-white shadow-2xl min-h-[500px] p-8 transition-all duration-300 ring-1 ring-black/5',
-          isOver ? 'ring-2 ring-blue-500 scale-[1.02]' : ''
+          'bg-white shadow-2xl transition-all duration-300 ring-1 ring-black/5',
+          isOver ? 'ring-2 ring-blue-500 scale-[1.02]' : '',
+          // Layout variants
+          (!theme.layout || theme.layout === 'centered') && 'w-full max-w-[400px] min-h-[500px] p-8',
+          theme.layout === 'split' && 'w-full max-w-[800px] h-[600px] flex items-center p-0 overflow-hidden',
+          theme.layout === 'full' && 'w-full h-full max-w-none p-8 flex flex-col justify-center',
+          theme.layout === 'modal' && 'w-full max-w-[440px] p-8 rounded-2xl shadow-[0_20px_60px_-15px_rgba(0,0,0,0.3)]'
         )}
         style={{
           borderRadius: theme.borderRadius,
         }}
         onClick={(e) => e.stopPropagation()}
       >
+        <div className={cn(
+            "w-full h-full", 
+            theme.font === 'serif' ? 'font-serif' : theme.font === 'mono' ? 'font-mono' : 'font-sans'
+        )}>
+           {theme.layout === 'split' && (
+           <div className="w-1/2 h-full bg-zinc-100 border-r border-zinc-100 flex items-center justify-center overflow-hidden">
+              <div className="text-zinc-300 text-6xl font-black opacity-20 rotate-12 select-none">IMAGE</div>
+           </div>
+        )}
+        <div className={cn(
+            theme.layout === 'split' ? "w-1/2 p-8" : "w-full",
+            theme.layout === 'full' && "max-w-md mx-auto"
+        )}>
         {blocks.length === 0 ? (
           <div className="h-full min-h-[436px] flex flex-col items-center justify-center text-zinc-400 border-2 border-dashed border-zinc-100 rounded-xl p-8 gap-4 bg-zinc-50/50">
             <div className="w-12 h-12 rounded-full bg-zinc-100 flex items-center justify-center">
@@ -43,38 +63,86 @@ export function Canvas({
             <p className="text-sm font-medium">Drop blocks here</p>
           </div>
         ) : (
-          <div className="space-y-5">
-             {/* Mock visual header to make it look like a real browser window or app */}
-            <div className="flex justify-center pb-4">
-                 <div className="h-1 w-12 bg-zinc-100 rounded-full" />
-            </div>
-
-            {blocks.map((block) => (
-              <div
-                key={block.id}
-                onClick={(e) => {
-                  e.stopPropagation()
-                  onSelect(block.id)
-                }}
-                className={cn(
-                  'relative group cursor-pointer ring-2 ring-transparent hover:ring-blue-100 rounded-lg p-2 -m-2 transition-all',
-                  selectedId === block.id && 'ring-blue-500 bg-blue-50/10'
-                )}
-              >
-                <BlockRenderer block={block} theme={theme} />
-                
-                {selectedId === block.id && (
-                   <div className="absolute -right-3 -top-3 w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center text-white shadow-md z-10">
-                      <div className="w-2 h-2 bg-white rounded-full" />
-                   </div>
-                )}
-              </div>
-            ))}
-          </div>
+          <SortableContext items={blocks} strategy={verticalListSortingStrategy}>
+             <div className="space-y-4">
+               {/* Mock visual header to make it look like a real browser window or app */}
+               <div className="flex justify-center pb-2 opacity-50">
+                    <div className="h-1 w-12 bg-zinc-200 rounded-full" />
+               </div>
+   
+               {blocks.map((block) => (
+                 <SortableBlock 
+                   key={block.id} 
+                   block={block} 
+                   theme={theme} 
+                   selectedId={selectedId} 
+                   onSelect={onSelect} 
+                 />
+               ))}
+             </div>
+          </SortableContext>
         )}
+        </div>
       </div>
     </div>
+    </div>
   )
+}
+
+function SortableBlock({ block, theme, selectedId, onSelect }) {
+    const {
+        attributes,
+        listeners,
+        setNodeRef,
+        transform,
+        transition,
+        isDragging,
+    } = useSortable({ 
+        id: block.id,
+        data: {
+          sortable: true
+        }
+    })
+
+    const style = {
+        transform: CSS.Transform.toString(transform),
+        transition,
+        opacity: isDragging ? 0.4 : 1,
+        touchAction: 'none' // Prevent scrolling while dragging
+    }
+
+    return (
+        <div
+            ref={setNodeRef}
+            style={style}
+            {...attributes}
+            {...listeners}
+            onClick={(e) => {
+              e.stopPropagation()
+              onSelect(block.id)
+            }}
+            className={cn(
+              'relative group cursor-grab active:cursor-grabbing ring-2 ring-transparent hover:ring-blue-100 rounded-lg p-2 -m-2 transition-all outline-none',
+              selectedId === block.id && 'ring-blue-500 bg-blue-50/10 z-10',
+              isDragging && 'z-50 ring-2 ring-blue-500 shadow-xl bg-white'
+            )}
+        >
+             <BlockRenderer block={block} theme={theme} />
+            
+             {selectedId === block.id && (
+                <div className="absolute -right-3 -top-3 w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center text-white shadow-md z-10 scale-0 group-hover:scale-100 transition-transform">
+                   <div className="w-2 h-2 bg-white rounded-full" />
+                </div>
+             )}
+             
+             {/* Hover Handle Indicator */}
+             {!isDragging && selectedId !== block.id && (
+                 <div className="absolute left-1 top-1/2 -translate-y-1/2 -translate-x-full pr-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                     <div className="h-6 w-1 rounded bg-zinc-200" />
+                 </div>
+             )}
+        </div>
+    )
 }
 
 function BlockRenderer({ block, theme }) {
@@ -82,31 +150,19 @@ function BlockRenderer({ block, theme }) {
   const labelStyles = "text-sm font-medium text-zinc-900"
 
   switch (block.type) {
-    case 'header':
-      return <h1 className="text-2xl font-bold text-center text-zinc-900 tracking-tight">{block.content || 'Welcome'}</h1>
-    case 'email':
+    case 'text':
       return (
-        <div className="space-y-2">
-          <label className={labelStyles}>{block.label || 'Email'}</label>
-          <input
-            disabled
-            type="email"
-            placeholder={block.placeholder}
-            className={commonInputStyles}
-            style={{ borderRadius: theme.borderRadius }}
-          />
-        </div>
+          <div style={block.style}>
+             {block.content || 'Double click to edit'}
+          </div>
       )
-    case 'password':
+    case 'input':
       return (
         <div className="space-y-2">
-           <div className="flex justify-between items-center">
-             <label className={labelStyles}>{block.label || 'Password'}</label>
-             <span className="text-xs text-zinc-500 hover:text-zinc-900 cursor-pointer hover:underline">Forgot?</span>
-           </div>
+          {block.label && <label className={labelStyles}>{block.label}</label>}
           <input
             disabled
-            type="password"
+            type={block.inputType || 'text'}
             placeholder={block.placeholder}
             className={commonInputStyles}
             style={{ borderRadius: theme.borderRadius }}
@@ -117,14 +173,27 @@ function BlockRenderer({ block, theme }) {
       return (
         <button
           disabled
-          className="flex h-11 w-full items-center justify-center rounded-md px-4 py-2 text-sm font-semibold text-white transition-all hover:opacity-90 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-100 shadow-sm"
+          className={cn(
+              "flex h-11 w-full items-center justify-center rounded-md px-4 py-2 text-sm font-semibold transition-all hover:opacity-90 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-100 shadow-sm",
+              block.variant === 'primary' ? "text-white" : "bg-zinc-100 text-zinc-900"
+          )}
           style={{
-            backgroundColor: theme.primaryColor,
+            backgroundColor: block.variant === 'primary' ? theme.primaryColor : undefined,
             borderRadius: theme.borderRadius,
           }}
         >
-          {block.label || 'Sign In'}
+          {block.label || 'Button'}
         </button>
+      )
+    case 'box':
+      return (
+         <div 
+            className="w-full rounded-lg border border-zinc-200"
+            style={{
+                ...block.style,
+                borderRadius: theme.borderRadius
+            }}
+         />
       )
     case 'social':
        return (
@@ -156,6 +225,6 @@ function BlockRenderer({ block, theme }) {
            </div>
        )
     default:
-      return <div className="p-4 border border-red-200 bg-red-50 text-red-600">Unknown block type</div>
+      return <div className="p-4 border border-red-200 bg-red-50 text-red-600">Unknown block type: {block.type}</div>
   }
 }

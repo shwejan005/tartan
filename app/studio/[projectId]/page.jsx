@@ -14,12 +14,32 @@ export default async function StudioPage({ params }) {
     notFound()
   }
 
-  const initialDesign = project.design?.config || {
+  let initialDesign = project.design?.config || {
     blocks: [],
     theme: {
       primaryColor: '#000000',
       borderRadius: '0.5rem',
     }
+  }
+
+  // Temporary Migration for Dev: Fix legacy block types
+  if (initialDesign.blocks) {
+    initialDesign.blocks = initialDesign.blocks.map(block => {
+        if (block.type === 'header') {
+            return { 
+                ...block, 
+                type: 'text', 
+                style: { fontSize: '24px', fontWeight: 'bold', textAlign: 'center', marginBottom: '16px' } 
+            }
+        }
+        if (block.type === 'email') {
+            return { ...block, type: 'input', inputType: 'email', label: block.label || 'Email' }
+        }
+        if (block.type === 'password') {
+             return { ...block, type: 'input', inputType: 'password', label: block.label || 'Password' }
+        }
+        return block
+    })
   }
 
   return (
