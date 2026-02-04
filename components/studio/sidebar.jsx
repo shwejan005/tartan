@@ -40,67 +40,16 @@ function AssetBlock({ type, label, onClick }) {
   )
 }
 
+import { TEMPLATES } from '@/components/studio/templates'
+
 export function Sidebar({ onAddBlock, onApplyTemplate }) {
   const [activeTab, setActiveTab] = useState('elements')
+  const [selectedCategory, setSelectedCategory] = useState('All')
 
-  const templates = [
-    {
-      id: 'simple-login',
-      name: 'Simple Login',
-      design: {
-        blocks: [
-          { id: '1', type: 'text', content: 'Welcome Back', style: { fontSize: '24px', fontWeight: 'bold', textAlign: 'center', marginBottom: '8px' } },
-          { id: '2', type: 'text', content: 'Please sign in to continue', style: { fontSize: '14px', color: '#666', textAlign: 'center', marginBottom: '24px' } },
-          { id: '3', type: 'input', inputType: 'email', label: 'Email Address', placeholder: 'you@example.com' },
-          { id: '4', type: 'input', inputType: 'password', label: 'Password', placeholder: '••••••••' },
-          { id: '5', type: 'button', label: 'Sign In', variant: 'primary' },
-          { id: '6', type: 'social', label: 'Or continue with' }
-        ],
-        theme: {
-          primaryColor: '#000000',
-          borderRadius: '0.5rem',
-          layout: 'centered',
-          font: 'sans'
-        }
-      }
-    },
-    {
-       id: 'split-screen',
-       name: 'Split Screen',
-       design: {
-           blocks: [
-             { id: '1', type: 'text', content: 'Create Account', style: { fontSize: '28px', fontWeight: '800', marginBottom: '8px' } },
-             { id: '2', type: 'input', inputType: 'text', label: 'Full Name', placeholder: 'John Doe' },
-             { id: '3', type: 'input', inputType: 'email', label: 'Email', placeholder: 'john@example.com' },
-             { id: '4', type: 'input', inputType: 'password', label: 'Password', placeholder: 'Create a password' },
-             { id: '5', type: 'button', label: 'Create Account', variant: 'primary' },
-           ],
-           theme: {
-             primaryColor: '#2563EB',
-             borderRadius: '0.25rem',
-             layout: 'split',
-             font: 'sans'
-           }
-       }
-    },
-    {
-       id: 'dark-modern',
-       name: 'Dark & Modern',
-       design: {
-           blocks: [
-               { id: '1', type: 'box', style: { height: '60px', backgroundColor: '#18181b', borderRadius: '12px' } },
-               { id: '2', type: 'text', content: 'Access Dashboard', style: { fontSize: '20px', fontWeight: '600', color: '#333', textAlign: 'center', marginTop: '20px' } },
-               { id: '3', type: 'button', label: 'Authenticate', variant: 'primary' }
-           ],
-           theme: {
-               primaryColor: '#18181b',
-               borderRadius: '0.75rem',
-               layout: 'modal',
-               font: 'mono'
-           }
-       }
-    }
-  ]
+  const categories = ['All', ...new Set(TEMPLATES.map(t => t.category))]
+  const filteredTemplates = selectedCategory === 'All' 
+    ? TEMPLATES 
+    : TEMPLATES.filter(t => t.category === selectedCategory)
 
   return (
     <div className="w-64 border-r border-zinc-200 bg-white flex flex-col h-full shadow-[4px_0_24px_-12px_rgba(0,0,0,0.1)] z-10">
@@ -125,7 +74,7 @@ export function Sidebar({ onAddBlock, onApplyTemplate }) {
          </button>
       </div>
 
-      <div className="flex-1 overflow-y-auto p-4">
+      <div className="flex-1 overflow-y-auto p-4 custom-scrollbar">
         {activeTab === 'elements' ? (
              <div className="space-y-8">
                 <div>
@@ -151,29 +100,57 @@ export function Sidebar({ onAddBlock, onApplyTemplate }) {
                 </div>
             </div>
         ) : (
-            <div className="space-y-3">
-                 <h3 className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider mb-1 px-1">
-                    Starter Kits
-                </h3>
-                {templates.map(template => (
-                    <button
-                       key={template.id}
-                       onClick={() => {
-                           if (confirm('This will replace your current design. Continue?')) {
-                               onApplyTemplate(template.design)
-                           }
-                       }}
-                       className="w-full text-left p-3 rounded-lg border border-zinc-200 hover:border-zinc-300 hover:bg-zinc-50 transition-all group"
-                    >
-                        <div className="h-20 bg-zinc-100 rounded-md mb-2 overflow-hidden relative border border-zinc-100">
-                             {/* Mock Preview */}
-                             <div className="absolute inset-0 flex items-center justify-center text-zinc-300">
-                                 <LayoutTemplate className="w-8 h-8 opacity-50" />
-                             </div>
-                        </div>
-                        <span className="text-xs font-semibold text-zinc-700 group-hover:text-zinc-900 block">{template.name}</span>
-                    </button>
-                ))}
+            <div className="space-y-4">
+                 <div className="flex flex-wrap gap-1 pb-2 border-b border-zinc-50">
+                    {categories.map(cat => (
+                        <button
+                            key={cat}
+                            onClick={() => setSelectedCategory(cat)}
+                            className={cn(
+                                "px-2 py-1 text-[10px] rounded-full border transition-all",
+                                selectedCategory === cat 
+                                    ? "bg-zinc-900 text-white border-zinc-900" 
+                                    : "bg-white text-zinc-500 border-zinc-200 hover:border-zinc-300"
+                            )}
+                        >
+                            {cat}
+                        </button>
+                    ))}
+                 </div>
+
+                 <div className="space-y-3">
+                    {filteredTemplates.map(template => (
+                        <button
+                        key={template.id}
+                        onClick={() => {
+                            if (confirm('This will replace your current design. Continue?')) {
+                                onApplyTemplate(template.design)
+                            }
+                        }}
+                        className="w-full text-left p-3 rounded-lg border border-zinc-200 hover:border-blue-300 hover:bg-blue-50/30 transition-all group"
+                        >
+                            <div className="h-20 bg-zinc-100 rounded-md mb-2 overflow-hidden relative border border-zinc-100 flex items-center justify-center">
+                                {/* Simple preview visualization */}
+                                <div className="scale-[0.25] p-4 bg-white shadow-sm ring-1 ring-black/5" 
+                                     style={{ 
+                                         borderRadius: template.design.theme.borderRadius,
+                                         width: '200px',
+                                         height: '150px' 
+                                     }}>
+                                     <div className="space-y-2">
+                                         {template.design.blocks.slice(0, 3).map((b, i) => (
+                                             <div key={i} className="h-2 bg-zinc-100 rounded w-full" />
+                                         ))}
+                                     </div>
+                                </div>
+                            </div>
+                            <div className="flex justify-between items-center">
+                                <span className="text-xs font-semibold text-zinc-700 group-hover:text-blue-700 block">{template.name}</span>
+                                <span className="text-[9px] text-zinc-400 uppercase">{template.category}</span>
+                            </div>
+                        </button>
+                    ))}
+                 </div>
             </div>
         )}
       </div>
