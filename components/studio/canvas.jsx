@@ -27,13 +27,13 @@ export function Canvas({
       <div
         ref={setNodeRef}
         className={cn(
-          'bg-white shadow-2xl transition-all duration-300 ring-1 ring-black/5',
+          'bg-white shadow-[0_20px_50px_-12px_rgba(0,0,0,0.1)] transition-all duration-300 ring-1 ring-black/5',
           isOver ? 'ring-2 ring-blue-500 scale-[1.02]' : '',
           // Layout variants
-          (!theme.layout || theme.layout === 'centered') && 'w-full max-w-[400px] min-h-[500px] p-8',
-          theme.layout === 'split' && 'w-full max-w-[800px] h-[600px] flex items-center p-0 overflow-hidden',
-          theme.layout === 'full' && 'w-full h-full max-w-none p-8 flex flex-col justify-center',
-          theme.layout === 'modal' && 'w-full max-w-[440px] p-8 rounded-2xl shadow-[0_20px_60px_-15px_rgba(0,0,0,0.3)]'
+          (!theme.layout || theme.layout === 'centered') && 'w-full max-w-[420px] min-h-[500px] p-8',
+          theme.layout === 'split' && 'w-full max-w-[900px] h-[600px] flex items-center p-0 overflow-hidden',
+          theme.layout === 'full' && 'w-full h-full max-w-none p-8 flex flex-col justify-center bg-transparent shadow-none ring-0',
+          theme.layout === 'modal' && 'w-full max-w-[480px] p-10 rounded-2xl shadow-[0_25px_50px_-12px_rgba(0,0,0,0.25)] border border-white/20'
         )}
         style={{
           borderRadius: theme.borderRadius,
@@ -224,6 +224,33 @@ function BlockRenderer({ block, theme }) {
                </button>
            </div>
        )
+    case 'image':
+      return (
+        <div className="w-full flex justify-center">
+            {block.src ? (
+                <img 
+                    src={block.src} 
+                    alt={block.alt || 'Image'} 
+                    className="max-w-full object-cover"
+                    style={{
+                        height: block.style?.height || 'auto',
+                        width: block.style?.width || '100%',
+                        borderRadius: theme.borderRadius
+                    }}
+                />
+            ) : (
+                <div 
+                    className="w-full h-32 bg-zinc-100 border-2 border-dashed border-zinc-200 rounded-lg flex flex-col items-center justify-center text-zinc-400 gap-2"
+                    style={{ borderRadius: theme.borderRadius }}
+                >
+                    <svg className="w-8 h-8 opacity-50" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                    <span className="text-xs font-medium">No image selected</span>
+                </div>
+            )}
+        </div>
+      )
     default:
       return <div className="p-4 border border-red-200 bg-red-50 text-red-600">Unknown block type: {block.type}</div>
   }

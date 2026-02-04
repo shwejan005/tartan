@@ -50,8 +50,10 @@ export async function POST(request, { params }) {
         },
       })
 
+      const project = await prisma.project.findFirst({ where: { userId: user.id } })
+      
       await setSession({ id: user.id, email: user.email, name: user.name })
-      return NextResponse.json({ user: { id: user.id, email: user.email, name: user.name } })
+      return NextResponse.json({ user: { id: user.id, email: user.email, name: user.name }, projectId: project?.id })
     }
 
     if (action === 'login') {
@@ -68,8 +70,10 @@ export async function POST(request, { params }) {
         return NextResponse.json({ error: 'Invalid credentials' }, { status: 401 })
       }
 
+      const project = await prisma.project.findFirst({ where: { userId: user.id } })
+
       await setSession({ id: user.id, email: user.email, name: user.name })
-      return NextResponse.json({ user: { id: user.id, email: user.email, name: user.name } })
+      return NextResponse.json({ user: { id: user.id, email: user.email, name: user.name }, projectId: project?.id })
     }
 
     if (action === 'logout') {

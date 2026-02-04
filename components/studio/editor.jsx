@@ -88,6 +88,11 @@ export function StudioEditor({ initialDesign, projectId }) {
         case 'social':
             newBlock.label = 'Continue with Google'
             break
+        case 'image':
+            newBlock.src = ''
+            newBlock.alt = 'Image'
+            newBlock.style = { width: '100%', height: 'auto' }
+            break
         default:
             newBlock.label = 'New Block'
     }
@@ -98,10 +103,20 @@ export function StudioEditor({ initialDesign, projectId }) {
     }))
   }
 
+  const handleApplyTemplate = (templateDesign) => {
+    // Generate new IDs to avoid conflicts if template is applied multiple times
+    const newBlocks = templateDesign.blocks.map(b => ({ ...b, id: crypto.randomUUID() }))
+    setDesign({
+        ...templateDesign,
+        blocks: newBlocks
+    })
+    setSelectedBlockId(null)
+  }
+
   return (
     <DndContext id="tartan-dnd" sensors={sensors} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
       <div className="flex h-full">
-        <Sidebar onAddBlock={addBlock} />
+        <Sidebar onAddBlock={addBlock} onApplyTemplate={handleApplyTemplate} />
         <Canvas 
           blocks={design.blocks || []} 
           theme={design.theme} 

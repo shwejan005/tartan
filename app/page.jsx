@@ -23,7 +23,12 @@ export default function Home() {
       if (!res.ok) throw new Error(data.error)
       
       alert('Success! ' + (isLogin ? 'Logged in' : 'Account created'))
-      router.push('/studio/demo-project-id') 
+      alert('Success! ' + (isLogin ? 'Logged in' : 'Account created'))
+      if (data.projectId) {
+        router.push(`/studio/${data.projectId}`)
+      } else {
+        router.push('/studio/new') // Fallback if no project found
+      }
     } catch (err) {
       alert(err.message)
     }

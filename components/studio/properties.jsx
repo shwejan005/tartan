@@ -205,6 +205,47 @@ export function Properties({
                        </PropertyRow>
                    </PropertySection>
                 )}
+
+                {selectedBlock.type === 'image' && (
+                   <PropertySection title="Image Details">
+                       <PropertyRow label="Source URL">
+                            <input
+                             type="text"
+                             placeholder="https://..."
+                             value={selectedBlock.src || ''}
+                             onChange={(e) => updateBlock({ src: e.target.value })}
+                             className="w-full h-8 rounded border border-zinc-200 px-2 text-xs focus:outline-none focus:border-blue-500"
+                           />
+                       </PropertyRow>
+                       <PropertyRow label="Alt Text">
+                            <input
+                             type="text"
+                             placeholder="Image description"
+                             value={selectedBlock.alt || ''}
+                             onChange={(e) => updateBlock({ alt: e.target.value })}
+                             className="w-full h-8 rounded border border-zinc-200 px-2 text-xs focus:outline-none focus:border-blue-500"
+                           />
+                       </PropertyRow>
+                       <PropertySection title="Style">
+                            <PropertyRow label="Width">
+                                    <input
+                                    type="text"
+                                    value={selectedBlock.style?.width || '100%'}
+                                    onChange={(e) => updateBlock({ style: { ...selectedBlock.style, width: e.target.value } })}
+                                    className="w-full h-8 rounded border border-zinc-200 px-2 text-xs focus:outline-none focus:border-blue-500"
+                                />
+                            </PropertyRow>
+                            <PropertyRow label="Height">
+                                    <input
+                                    type="text"
+                                    value={selectedBlock.style?.height || 'auto'}
+                                    onChange={(e) => updateBlock({ style: { ...selectedBlock.style, height: e.target.value } })}
+                                    className="w-full h-8 rounded border border-zinc-200 px-2 text-xs focus:outline-none focus:border-blue-500"
+                                />
+                            </PropertyRow>
+                       </PropertySection>
+                   </PropertySection>
+                )}
               
                <div className="pt-8 mt-4 border-t border-zinc-100">
                   <button 
