@@ -155,14 +155,63 @@ export function Properties({
                      </>
                   )}
                   {(selectedBlock.type === 'text' || selectedBlock.type === 'button') && (
-                     <PropertyRow label="Text">
-                           <input 
-                              type="text" 
-                              value={selectedBlock.type === 'text' ? selectedBlock.content : selectedBlock.label} 
-                              onChange={(e) => selectedBlock.type === 'text' ? updateBlock({ content: e.target.value }) : updateBlock({ label: e.target.value })}
-                              className="w-full h-8 rounded border border-zinc-200 px-2 text-xs focus:outline-none focus:border-blue-500"
-                           />
-                     </PropertyRow>
+                     <>
+                        <PropertyRow label="Text">
+                              <input 
+                                 type="text" 
+                                 value={selectedBlock.type === 'text' ? selectedBlock.content : selectedBlock.label} 
+                                 onChange={(e) => selectedBlock.type === 'text' ? updateBlock({ content: e.target.value }) : updateBlock({ label: e.target.value })}
+                                 className="w-full h-8 rounded border border-zinc-200 px-2 text-xs focus:outline-none focus:border-blue-500"
+                              />
+                        </PropertyRow>
+                        {selectedBlock.type === 'text' && (
+                             <PropertySection title="Typography">
+                                <PropertyRow label="Size">
+                                     <input
+                                      type="text"
+                                      value={selectedBlock.style?.fontSize || '16px'}
+                                      onChange={(e) => updateBlock({ style: { ...selectedBlock.style, fontSize: e.target.value } })}
+                                      className="w-full h-8 rounded border border-zinc-200 px-2 text-xs focus:outline-none focus:border-blue-500"
+                                    />
+                                </PropertyRow>
+                                <PropertyRow label="Weight">
+                                     <select
+                                       value={selectedBlock.style?.fontWeight || '400'}
+                                       onChange={(e) => updateBlock({ style: { ...selectedBlock.style, fontWeight: e.target.value } })}
+                                       className="w-full h-8 rounded border border-zinc-200 px-2 text-xs bg-transparent focus:outline-none focus:border-blue-500"
+                                     >
+                                         <option value="300">Light</option>
+                                         <option value="400">Regular</option>
+                                         <option value="500">Medium</option>
+                                         <option value="600">Semibold</option>
+                                         <option value="700">Bold</option>
+                                         <option value="900">Black</option>
+                                     </select>
+                                </PropertyRow>
+                                <PropertyRow label="Align">
+                                     <div className="flex bg-zinc-100 rounded p-1 gap-1">
+                                         {['left', 'center', 'right'].map(align => (
+                                             <button
+                                                key={align}
+                                                onClick={() => updateBlock({ style: { ...selectedBlock.style, textAlign: align } })}
+                                                className={`flex-1 h-6 rounded text-xs capitalize ${selectedBlock.style?.textAlign === align ? 'bg-white shadow-sm text-black' : 'text-zinc-500 hover:text-zinc-700'}`}
+                                             >
+                                                {align[0]}
+                                             </button>
+                                         ))}
+                                     </div>
+                                </PropertyRow>
+                                <PropertyRow label="Color">
+                                    <input
+                                      type="color"
+                                      value={selectedBlock.style?.color || '#000000'}
+                                      onChange={(e) => updateBlock({ style: { ...selectedBlock.style, color: e.target.value } })}
+                                      className="w-full h-8 rounded border border-zinc-200 cursor-pointer p-0.5 bg-white"
+                                    />
+                                </PropertyRow>
+                             </PropertySection>
+                        )}
+                     </>
                   )}
                </PropertySection>
 
@@ -195,11 +244,27 @@ export function Properties({
                              className="w-full h-8 rounded border border-zinc-200 cursor-pointer p-0.5 bg-white"
                            />
                        </PropertyRow>
+                       <PropertyRow label="Width">
+                            <input
+                             type="text"
+                             value={selectedBlock.style?.width || '100%'}
+                             onChange={(e) => updateBlock({ style: { ...selectedBlock.style, width: e.target.value } })}
+                             className="w-full h-8 rounded border border-zinc-200 px-2 text-xs focus:outline-none focus:border-blue-500"
+                           />
+                       </PropertyRow>
                        <PropertyRow label="Height">
                             <input
                              type="text"
                              value={selectedBlock.style?.height || '100px'}
                              onChange={(e) => updateBlock({ style: { ...selectedBlock.style, height: e.target.value } })}
+                             className="w-full h-8 rounded border border-zinc-200 px-2 text-xs focus:outline-none focus:border-blue-500"
+                           />
+                       </PropertyRow>
+                       <PropertyRow label="Radius">
+                            <input
+                             type="text"
+                             value={selectedBlock.style?.borderRadius || '0px'}
+                             onChange={(e) => updateBlock({ style: { ...selectedBlock.style, borderRadius: e.target.value } })}
                              className="w-full h-8 rounded border border-zinc-200 px-2 text-xs focus:outline-none focus:border-blue-500"
                            />
                        </PropertyRow>

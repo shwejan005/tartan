@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { DndContext, DragOverlay, useSensor, useSensors, PointerSensor } from '@dnd-kit/core'
+import { DndContext, DragOverlay, useSensor, useSensors, PointerSensor, pointerWithin } from '@dnd-kit/core'
 import { arrayMove } from '@dnd-kit/sortable'
 import { Canvas } from './canvas'
 import { Sidebar } from './sidebar'
@@ -114,7 +114,13 @@ export function StudioEditor({ initialDesign, projectId }) {
   }
 
   return (
-    <DndContext id="tartan-dnd" sensors={sensors} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
+    <DndContext 
+        id="tartan-dnd" 
+        sensors={sensors} 
+        onDragStart={handleDragStart} 
+        onDragEnd={handleDragEnd}
+        collisionDetection={pointerWithin} // Better for small drop targets or layered elements
+    >
       <div className="flex h-full">
         <Sidebar onAddBlock={addBlock} onApplyTemplate={handleApplyTemplate} />
         <Canvas 
