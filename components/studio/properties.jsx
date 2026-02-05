@@ -5,7 +5,7 @@ import { Palette, Trash2, LayoutTemplate, Type } from 'lucide-react'
 export function Properties({
   selectedId,
   blocks,
-  theme,
+  theme = {},
   onUpdate,
   onUpdateTheme,
 }) {

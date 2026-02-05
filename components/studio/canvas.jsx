@@ -7,7 +7,7 @@ import { cn } from '@/lib/utils'
 
 export function Canvas({
   blocks,
-  theme,
+  theme = {},
   onSelect,
   selectedId,
 }) {
