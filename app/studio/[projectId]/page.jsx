@@ -44,13 +44,8 @@ export default async function StudioPage({ params }) {
 
   return (
     <div className="h-screen w-full bg-slate-50 flex flex-col">
-       <header className="h-14 border-b bg-white flex items-center px-4 justify-between">
-          <div className="font-semibold">{project.name} <span className="text-slate-400 font-normal">/ Login Flow</span></div>
-          <button className="bg-black text-white px-4 py-2 text-sm rounded-md">Publish</button>
-       </header>
-       <div className="flex-1 overflow-hidden">
-          <StudioEditor initialDesign={initialDesign} projectId={projectId} />
-       </div>
+       <StudioEditor initialDesign={initialDesign} projectId={projectId} projectName={project.name} />
+
     </div>
   )
 }

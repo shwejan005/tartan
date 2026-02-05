@@ -7,10 +7,36 @@ import { Canvas } from './canvas'
 import { Sidebar } from './sidebar'
 import { Properties } from './properties'
 
-export function StudioEditor({ initialDesign, projectId }) {
+export function StudioEditor({ initialDesign, projectId, projectName }) {
   const [design, setDesign] = useState(initialDesign)
   const [selectedBlockId, setSelectedBlockId] = useState(null)
   const [activeDragId, setActiveDragId] = useState(null)
+  const [isPublishing, setIsPublishing] = useState(false)
+
+  const handlePublish = async () => {
+    setIsPublishing(true)
+    try {
+      const res = await fetch('/api/design/publish', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ projectId, config: design }),
+      })
+      
+      if (!res.ok) throw new Error('Failed to publish')
+      
+      const { design: updatedDesign } = await res.json()
+      // Show simple alert for now, or use a toast library if available (none seen in dependencies list, assuming basic)
+      // Actually, better to copy Link to clipboard
+      const publicUrl = `${window.location.origin}/p/${projectId}`
+      window.prompt("Published successfully! Share this URL:", publicUrl)
+
+    } catch (error) {
+      console.error(error)
+      alert("Failed to publish. Please try again.")
+    } finally {
+      setIsPublishing(false)
+    }
+  }
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -121,7 +147,18 @@ export function StudioEditor({ initialDesign, projectId }) {
         onDragEnd={handleDragEnd}
         collisionDetection={pointerWithin} // Better for small drop targets or layered elements
     >
-      <div className="flex h-full">
+      <div className="flex flex-col h-full w-full">
+        <header className="h-14 border-b bg-white flex items-center px-4 justify-between shrink-0 z-10 relative">
+            <div className="font-semibold">{projectName} <span className="text-slate-400 font-normal">/ Login Flow</span></div>
+            <button 
+                onClick={handlePublish}
+                disabled={isPublishing}
+                className="bg-black text-white px-4 py-2 text-sm rounded-md disabled:opacity-50 hover:opacity-90 transition-opacity"
+            >
+                {isPublishing ? 'Publishing...' : 'Publish'}
+            </button>
+        </header>
+      <div className="flex h-full overflow-hidden">
         <Sidebar onAddBlock={addBlock} onApplyTemplate={handleApplyTemplate} />
         <Canvas 
           blocks={design.blocks || []} 
@@ -136,6 +173,7 @@ export function StudioEditor({ initialDesign, projectId }) {
              onUpdate={(blocks) => setDesign(prev => ({ ...prev, blocks }))}
              onUpdateTheme={(theme) => setDesign(prev => ({ ...prev, theme }))}
         />
+      </div>
       </div>
       <DragOverlay>
           {activeDragId ? (
